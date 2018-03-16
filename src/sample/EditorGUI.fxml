@@ -3,6 +3,7 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Label?>
 <?import javafx.scene.control.RadioButton?>
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.TextField?>
@@ -40,14 +41,15 @@
         <items>
           <AnchorPane prefWidth="542.0">
                <children>
-                  <RadioButton fx:id="slowDownButton" layoutX="72.0" layoutY="130.0" mnemonicParsing="false" text="RadioButton" />
-                  <RadioButton fx:id="speedUpButton" layoutX="72.0" layoutY="84.0" mnemonicParsing="false" text="RadioButton" />
-                  <TextField fx:id="miliSecondsField" layoutX="252.0" layoutY="95.0" prefHeight="39.0" prefWidth="57.0" />
+                  <RadioButton fx:id="slowDownButton" layoutX="100.0" layoutY="126.0" mnemonicParsing="false" text="Забави с" />
+                  <RadioButton fx:id="speedUpButton" layoutX="100.0" layoutY="87.0" mnemonicParsing="false" text="Забързай с" />
+                  <TextField fx:id="miliSecondsField" layoutX="232.0" layoutY="85.0" prefHeight="39.0" prefWidth="57.0" />
+                  <Label layoutX="299.0" layoutY="116.0" text="милисек." />
                </children>
             </AnchorPane>
           <AnchorPane>
                <children>
-                  <CheckBox fx:id="removeTagsBox" layoutX="107.0" layoutY="41.0" mnemonicParsing="false" prefHeight="43.0" prefWidth="116.0" text="CheckBox" />
+                  <CheckBox fx:id="removeTagsBox" layoutX="107.0" layoutY="41.0" mnemonicParsing="false" prefHeight="43.0" prefWidth="131.0" text="Премахни таговете" />
                </children>
             </AnchorPane>
         </items>
