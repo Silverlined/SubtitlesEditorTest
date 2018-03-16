@@ -1,14 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.Group?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Label?>
 <?import javafx.scene.control.RadioButton?>
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
 <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="350.0" prefWidth="550.0" xmlns="http://javafx.com/javafx/9.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.Controller">
@@ -40,14 +43,24 @@
         <items>
           <AnchorPane prefWidth="542.0">
                <children>
-                  <RadioButton fx:id="slowDownButton" layoutX="72.0" layoutY="130.0" mnemonicParsing="false" text="RadioButton" />
-                  <RadioButton fx:id="speedUpButton" layoutX="72.0" layoutY="84.0" mnemonicParsing="false" text="RadioButton" />
-                  <TextField fx:id="miliSecondsField" layoutX="252.0" layoutY="95.0" prefHeight="39.0" prefWidth="57.0" />
+                  <Group layoutX="100.0" layoutY="87.0">
+                     <children>
+                        <RadioButton fx:id="slowDownButton" layoutY="39.0" mnemonicParsing="false" onAction="#activateSlowDown" text="Забави с" />
+                        <RadioButton fx:id="speedUpButton" mnemonicParsing="false" onAction="#activateSpeedUp" text="Забързай с" />
+                     </children>
+                  </Group>
+                  <TextField fx:id="milliSecondsField" layoutX="232.0" layoutY="85.0" prefHeight="39.0" prefWidth="57.0" />
+                  <Label layoutX="299.0" layoutY="116.0" text="милисек." />
+                  <Button fx:id="timeIntervalButton" layoutX="206.0" layoutY="143.0" mnemonicParsing="false" onAction="#changeTimeIntervals" text="Приложи">
+                     <font>
+                        <Font size="10.0" />
+                     </font>
+                  </Button>
                </children>
             </AnchorPane>
           <AnchorPane>
                <children>
-                  <CheckBox fx:id="removeTagsBox" layoutX="107.0" layoutY="41.0" mnemonicParsing="false" prefHeight="43.0" prefWidth="116.0" text="CheckBox" />
+                  <CheckBox fx:id="removeTagsBox" layoutX="107.0" layoutY="41.0" mnemonicParsing="false" onAction="#removeTags" prefHeight="43.0" prefWidth="131.0" text="Премахни таговете" />
                </children>
             </AnchorPane>
         </items>

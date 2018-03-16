@@ -12,21 +12,19 @@ import java.util.regex.Pattern;
 
 public class Main extends Application {
 
-    public static File subtitleFile;
-    public static File subtitlesEdited;
-    Pattern regex = Pattern.compile("\\A\\d{2}:\\d{2}:\\d{2},\\d{3} --> \\d{2}:\\d{2}:\\d{2},\\d{3}\\z");
+    static File subtitleFile;
+    static File subtitlesEdited;
 
     @FXML
-    static BorderPane contentArea;
+    private static BorderPane contentArea;
 
     public static void main(String[] args) {
         launch(args);
     }
 
     @Override
-    public void start(Stage primaryStage) throws Exception{
+    public void start(Stage primaryStage) throws Exception {
         SetUpGUI(primaryStage);
-
     }
 
     private void SetUpGUI(Stage primaryStage) throws java.io.IOException {
