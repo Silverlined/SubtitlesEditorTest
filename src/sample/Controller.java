@@ -9,26 +9,26 @@ import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
-import java.io.File;
 
 
 public class Controller {
 
-    @FXML
-    Button loadFileButton, openFileWithButton, exitButton, saveChangesButton;
-    @FXML
-    RadioButton speedUpButton, slowDownButton;
-    @FXML
-    CheckBox removeTagsBox;
-    @FXML
-    TextField nameField, miliSecondsField;
-    @FXML
-    Text nameOfLoadedFile;
+    public Button loadFileButton, openFileWithButton, exitButton, saveChangesButton;
+    public RadioButton speedUpButton, slowDownButton;
+    public CheckBox removeTagsBox;
+    public TextField nameField, miliSecondsField;
+    public Text nameOfLoadedFile;
 
     public void loadFile() {
         FileChooser fileChooser = new FileChooser();
         configureFileChooser(fileChooser);
         Main.subtitleFile = fileChooser.showOpenDialog(new Stage());
+        SetTextField();
+    }
+
+    private void SetTextField() {
+        nameOfLoadedFile.setText(Main.subtitleFile.getName());
+        nameField.setText(Main.subtitleFile.getAbsolutePath());
     }
 
     private static void configureFileChooser(final FileChooser fileChooser) {
@@ -45,7 +45,7 @@ public class Controller {
     }
 
     public void exit() {
-
+        System.exit(0);
     }
 
     public void saveChanges() {

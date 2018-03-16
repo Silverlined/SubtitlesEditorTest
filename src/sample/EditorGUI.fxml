@@ -56,7 +56,7 @@
    <bottom>
       <VBox BorderPane.alignment="CENTER">
          <children>
-            <Text fx:id="nameOfLoadedFile" strokeType="OUTSIDE" strokeWidth="0.0" text="Text" />
+            <Text fx:id="nameOfLoadedFile" strokeType="OUTSIDE" strokeWidth="0.0" text="" />
          </children>
       </VBox>
    </bottom>

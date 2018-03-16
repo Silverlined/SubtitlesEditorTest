@@ -8,10 +8,13 @@ import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 
 import java.io.File;
+import java.util.regex.Pattern;
 
 public class Main extends Application {
 
     public static File subtitleFile;
+    public static File subtitlesEdited;
+    Pattern regex = Pattern.compile("\\A\\d{2}:\\d{2}:\\d{2},\\d{3} --> \\d{2}:\\d{2}:\\d{2},\\d{3}\\z");
 
     @FXML
     static BorderPane contentArea;
