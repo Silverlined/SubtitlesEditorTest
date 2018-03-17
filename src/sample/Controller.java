@@ -11,6 +11,8 @@ import javafx.stage.Stage;
 
 import java.awt.*;
 import java.io.*;
+import java.text.DecimalFormat;
+import java.text.Format;
 import java.util.regex.Pattern;
 
 
@@ -27,11 +29,8 @@ public class Controller {
     TextField nameField, milliSecondsField;
     @FXML
     Text nameOfLoadedFile;
-    private Desktop desktop = Desktop.getDesktop();
     private BufferedReader bufferedReader;
     private BufferedWriter bufferedWriter;
-    private Pattern timeIntervalRegex = Pattern.compile("\\A\\d{2}:\\d{2}:\\d{2},\\d{3} --> \\d{2}:\\d{2}:\\d{2},\\d{3}\\z");
-    private Pattern tagRegex = Pattern.compile("<[^>]*>");
 
     public void loadFile() {
         FileChooser fileChooser = new FileChooser();
@@ -56,6 +55,7 @@ public class Controller {
 
     public void openWith() {
         try {
+            Desktop desktop = Desktop.getDesktop();
             desktop.open(Main.subtitleFile);
         } catch (NullPointerException | FileNotFoundException e) {
             MessageBox.display("Open Subtitles File First");
@@ -103,8 +103,9 @@ public class Controller {
             bufferedWriter = new BufferedWriter(new OutputStreamWriter(
                     new FileOutputStream(Main.subtitlesEdited), "Windows-1251"));
             String line = null;
+            Pattern tagRegex = Pattern.compile("<[^>]*>");
             while ((line = bufferedReader.readLine()) != null) {
-                line = removeTags(line);
+                line = removeTags(line, tagRegex);
                 bufferedWriter.write(line + "\n");
             }
             bufferedReader.close();
@@ -118,17 +119,66 @@ public class Controller {
         }
     }
 
-    private String removeTags(String line) {
+    private String removeTags(String line, Pattern tagRegex) {
         return line.replaceAll(tagRegex.pattern(), "");
     }
 
     public void changeTimeIntervals() {
         try {
             int timeInterval = Integer.parseInt(milliSecondsField.getText());
-        }catch (NumberFormatException e) {
+            DecimalFormat decimalFormat = new DecimalFormat("00 000");
+            Main.subtitlesEdited = new File("sample.tempSubtitles.srt");
+            bufferedReader = new BufferedReader(new InputStreamReader(
+                    new FileInputStream(Main.subtitleFile), "Windows-1251"));
+            bufferedWriter = new BufferedWriter(new OutputStreamWriter(
+                    new FileOutputStream(Main.subtitlesEdited), "Windows-1251"));
+            String line = null;
+            while ((line = bufferedReader.readLine()) != null) {
+                if (line.contains("-->")) {
+                    String[] timeIntervals = line.split(" --> ");
+                    String[] startingTimes = timeIntervals[0].split(":");
+                    String[] endingTimes = timeIntervals[1].split(":");
+                    startingTimes[2] = removeTheComma(startingTimes[2]);
+                    endingTimes[2] = removeTheComma(endingTimes[2]);
+                    long startingTimeMilliSec = 0;
+                    long endingTimeMilliSec = 0;
+                    for (int i = 0; i < 3; i++) {
+                        switch (i) {
+                            case 0:
+                                startingTimeMilliSec += Integer.parseInt(startingTimes[i]) * 3600000;
+                                endingTimeMilliSec += Integer.parseInt(endingTimes[i]) * 3600000;
+                                break;
+                            case 1:
+                                startingTimeMilliSec += Integer.parseInt(startingTimes[i]) * 60000;
+                                endingTimeMilliSec += Integer.parseInt(endingTimes[i]) * 60000;
+                                break;
+                            case 2:
+                                startingTimeMilliSec += Integer.parseInt(startingTimes[i]) * 1000;
+                                endingTimeMilliSec += Integer.parseInt(endingTimes[i]) * 1000;
+                                break;
+                        }
+                    }
+                    long startingTimeEdited = startingTimeMilliSec + timeInterval;
+                    long endingTimeEdited = endingTimeMilliSec + timeInterval;
+
+                    }
+                }
+        } catch (NumberFormatException e) {
             MessageBox.display("Change the milliseconds");
             e.printStackTrace();
+        } catch (UnsupportedEncodingException e) {
+            MessageBox.display("Your system does not support Windows-1251 encoding");
+            e.printStackTrace();
+        } catch (NullPointerException | FileNotFoundException e) {
+            MessageBox.display("File Not Found");
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+    }
+
+    private String removeTheComma(String str) {
+        return str.replace(",", "");
     }
 
     public void activateSpeedUp() {
