@@ -11,6 +11,7 @@ import javafx.stage.Stage;
 
 import java.awt.*;
 import java.io.*;
+import java.math.BigInteger;
 import java.text.DecimalFormat;
 import java.text.Format;
 import java.util.regex.Pattern;
@@ -124,6 +125,7 @@ public class Controller {
     }
 
     public void changeTimeIntervals() {
+        String line = null;
         try {
             int timeInterval = Integer.parseInt(milliSecondsField.getText());
             DecimalFormat decimalFormat = new DecimalFormat("00 000");
@@ -132,14 +134,16 @@ public class Controller {
                     new FileInputStream(Main.subtitleFile), "Windows-1251"));
             bufferedWriter = new BufferedWriter(new OutputStreamWriter(
                     new FileOutputStream(Main.subtitlesEdited), "Windows-1251"));
-            String line = null;
-            while ((line = bufferedReader.readLine()) != null) {
+            line = bufferedReader.readLine();
+            while (line != null) {
                 if (line.contains("-->")) {
                     String[] timeIntervals = line.split(" --> ");
                     String[] startingTimes = timeIntervals[0].split(":");
                     String[] endingTimes = timeIntervals[1].split(":");
                     startingTimes[2] = removeTheComma(startingTimes[2]);
                     endingTimes[2] = removeTheComma(endingTimes[2]);
+//                    BigInteger startingTimeMilliSec = new BigInteger("0");
+//                    BigInteger endingTimeMilliSec = new BigInteger("0");
                     long startingTimeMilliSec = 0;
                     long endingTimeMilliSec = 0;
                     for (int i = 0; i < 3; i++) {
@@ -161,8 +165,33 @@ public class Controller {
                     long startingTimeEdited = startingTimeMilliSec + timeInterval;
                     long endingTimeEdited = endingTimeMilliSec + timeInterval;
 
+                    System.out.println(startingTimeEdited + " " + endingTimeEdited);
+                    long millisecondsOfStartingEditedTime = startingTimeEdited % 1000;
+                    long secondsOfStartingEditedTime = (millisecondsOfStartingEditedTime / 1000) % 60;
+                    long minutesOfStartingEditedTime = (millisecondsOfStartingEditedTime / (1000 * 60)) % 60;
+                    long hoursOfStartingEditedTime = (millisecondsOfStartingEditedTime / (1000 * 60 * 60)) % 24;
+
+
+                    long millisecondsOfEndingEditedTime = endingTimeEdited % 1000;
+                    long secondsOfEndingEditedTime = (millisecondsOfEndingEditedTime / 1000) % 60;
+                    long minutesOfEndingEditedTime = (millisecondsOfEndingEditedTime / (1000 * 60)) % 60;
+                    long hoursOfEndingEditedTime = (millisecondsOfEndingEditedTime / (1000 * 60 * 60)) % 24;
+
+                    String editedStartingTime = String.format("%02d:%02d:%02d,%03d", hoursOfStartingEditedTime,
+                            minutesOfStartingEditedTime, secondsOfStartingEditedTime, millisecondsOfStartingEditedTime);
+                    String editedEndingTime = String.format("%02d:%02d:%02d,%03d", hoursOfEndingEditedTime,
+                            minutesOfEndingEditedTime, secondsOfEndingEditedTime, millisecondsOfEndingEditedTime);
+                    bufferedWriter.write(editedStartingTime + " --> " + editedEndingTime);
+                    bufferedWriter.write(System.lineSeparator());
+                } else {
+                    bufferedWriter.write(line);
+                    bufferedWriter.write(System.lineSeparator());
+                    if (bufferedReader.readLine() == null) {
+                        bufferedWriter.write(System.lineSeparator());
                     }
                 }
+                line = bufferedReader.readLine();
+            }
         } catch (NumberFormatException e) {
             MessageBox.display("Change the milliseconds");
             e.printStackTrace();
@@ -174,6 +203,13 @@ public class Controller {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+            try {
+                bufferedReader.close();
+                bufferedWriter.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
