@@ -74,6 +74,11 @@ public class Controller {
         try {
             File chosenLocation = new File(nameField.getText());
             String line = null;
+            Main.subtitlesEdited = new File("sample.tempSubtitles.srt");
+            bufferedReader = new BufferedReader(new InputStreamReader(
+                    new FileInputStream(Main.subtitlesEdited), "Windows-1251"));
+            bufferedWriter = new BufferedWriter(new OutputStreamWriter(
+                    new FileOutputStream(chosenLocation), "Windows-1251"));
             bufferedReader = new BufferedReader(new InputStreamReader(
                     new FileInputStream(Main.subtitlesEdited), "Windows-1251"));
             bufferedWriter = new BufferedWriter(new OutputStreamWriter(
@@ -81,10 +86,7 @@ public class Controller {
             while ((line = bufferedReader.readLine()) != null) {
                 bufferedWriter.write(line + "\n");
             }
-            Main.subtitleFile = Main.subtitlesEdited;
-            bufferedReader.close();
-            bufferedWriter.flush();
-            bufferedWriter.close();
+
         } catch (UnsupportedEncodingException e) {
             MessageBox.display("Your system does not support Windows-1251 encoding");
             e.printStackTrace();
@@ -93,30 +95,52 @@ public class Controller {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+            try {
+                bufferedReader.close();
+                bufferedWriter.flush();
+                bufferedWriter.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
     public void removeTags() {
         try {
             Main.subtitlesEdited = new File("sample.tempSubtitles.srt");
-            bufferedReader = new BufferedReader(new InputStreamReader(
-                    new FileInputStream(Main.subtitleFile), "Windows-1251"));
-            bufferedWriter = new BufferedWriter(new OutputStreamWriter(
-                    new FileOutputStream(Main.subtitlesEdited), "Windows-1251"));
+            if (Main.subtitlesEdited.exists()) {
+                bufferedReader = new BufferedReader(new InputStreamReader(
+                        new FileInputStream(Main.subtitlesEdited), "Windows-1251"));
+                bufferedWriter = new BufferedWriter(new OutputStreamWriter(
+                        new FileOutputStream(Main.subtitlesEdited), "Windows-1251"));
+            } else {
+                bufferedReader = new BufferedReader(new InputStreamReader(
+                        new FileInputStream(Main.subtitleFile), "Windows-1251"));
+                bufferedWriter = new BufferedWriter(new OutputStreamWriter(
+                        new FileOutputStream(Main.subtitlesEdited), "Windows-1251"));
+            }
+
+
             String line = null;
             Pattern tagRegex = Pattern.compile("<[^>]*>");
             while ((line = bufferedReader.readLine()) != null) {
                 line = removeTags(line, tagRegex);
                 bufferedWriter.write(line + "\n");
             }
-            bufferedReader.close();
-            bufferedWriter.flush();
-            bufferedWriter.close();
         } catch (NullPointerException | FileNotFoundException e) {
             MessageBox.display("Open Subtitles File First");
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+            try {
+                bufferedReader.close();
+                bufferedWriter.flush();
+                bufferedWriter.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -126,9 +150,9 @@ public class Controller {
 
     public void changeTimeIntervals() {
         String line = null;
+
         try {
             int timeInterval = Integer.parseInt(milliSecondsField.getText());
-            DecimalFormat decimalFormat = new DecimalFormat("00 000");
             Main.subtitlesEdited = new File("sample.tempSubtitles.srt");
             bufferedReader = new BufferedReader(new InputStreamReader(
                     new FileInputStream(Main.subtitleFile), "Windows-1251"));
@@ -142,8 +166,6 @@ public class Controller {
                     String[] endingTimes = timeIntervals[1].split(":");
                     startingTimes[2] = removeTheComma(startingTimes[2]);
                     endingTimes[2] = removeTheComma(endingTimes[2]);
-//                    BigInteger startingTimeMilliSec = new BigInteger("0");
-//                    BigInteger endingTimeMilliSec = new BigInteger("0");
                     long startingTimeMilliSec = 0;
                     long endingTimeMilliSec = 0;
                     for (int i = 0; i < 3; i++) {
@@ -153,42 +175,37 @@ public class Controller {
                                 endingTimeMilliSec += Integer.parseInt(endingTimes[i]) * 3600000;
                                 break;
                             case 1:
+
                                 startingTimeMilliSec += Integer.parseInt(startingTimes[i]) * 60000;
                                 endingTimeMilliSec += Integer.parseInt(endingTimes[i]) * 60000;
                                 break;
                             case 2:
-                                startingTimeMilliSec += Integer.parseInt(startingTimes[i]) * 1000;
-                                endingTimeMilliSec += Integer.parseInt(endingTimes[i]) * 1000;
+                                startingTimeMilliSec += Integer.parseInt(startingTimes[i]);
+                                endingTimeMilliSec += Integer.parseInt(endingTimes[i]);
                                 break;
                         }
                     }
+
                     long startingTimeEdited = startingTimeMilliSec + timeInterval;
                     long endingTimeEdited = endingTimeMilliSec + timeInterval;
 
-                    System.out.println(startingTimeEdited + " " + endingTimeEdited);
                     long millisecondsOfStartingEditedTime = startingTimeEdited % 1000;
-                    long secondsOfStartingEditedTime = (millisecondsOfStartingEditedTime / 1000) % 60;
-                    long minutesOfStartingEditedTime = (millisecondsOfStartingEditedTime / (1000 * 60)) % 60;
-                    long hoursOfStartingEditedTime = (millisecondsOfStartingEditedTime / (1000 * 60 * 60)) % 24;
-
+                    long secondsOfStartingEditedTime = (startingTimeEdited / 1000) % 60;
+                    long minutesOfStartingEditedTime = (startingTimeEdited / (1000 * 60)) % 60;
+                    long hoursOfStartingEditedTime = (startingTimeEdited / (1000 * 60 * 60)) % 24;
 
                     long millisecondsOfEndingEditedTime = endingTimeEdited % 1000;
-                    long secondsOfEndingEditedTime = (millisecondsOfEndingEditedTime / 1000) % 60;
-                    long minutesOfEndingEditedTime = (millisecondsOfEndingEditedTime / (1000 * 60)) % 60;
-                    long hoursOfEndingEditedTime = (millisecondsOfEndingEditedTime / (1000 * 60 * 60)) % 24;
+                    long secondsOfEndingEditedTime = (endingTimeEdited / 1000) % 60;
+                    long minutesOfEndingEditedTime = (endingTimeEdited / (1000 * 60)) % 60;
+                    long hoursOfEndingEditedTime = (endingTimeEdited / (1000 * 60 * 60)) % 24;
 
                     String editedStartingTime = String.format("%02d:%02d:%02d,%03d", hoursOfStartingEditedTime,
                             minutesOfStartingEditedTime, secondsOfStartingEditedTime, millisecondsOfStartingEditedTime);
                     String editedEndingTime = String.format("%02d:%02d:%02d,%03d", hoursOfEndingEditedTime,
                             minutesOfEndingEditedTime, secondsOfEndingEditedTime, millisecondsOfEndingEditedTime);
-                    bufferedWriter.write(editedStartingTime + " --> " + editedEndingTime);
-                    bufferedWriter.write(System.lineSeparator());
+                    bufferedWriter.write(editedStartingTime + " --> " + editedEndingTime + "\n");
                 } else {
-                    bufferedWriter.write(line);
-                    bufferedWriter.write(System.lineSeparator());
-                    if (bufferedReader.readLine() == null) {
-                        bufferedWriter.write(System.lineSeparator());
-                    }
+                    bufferedWriter.write(line + "\n");
                 }
                 line = bufferedReader.readLine();
             }
