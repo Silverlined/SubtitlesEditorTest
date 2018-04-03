@@ -11,10 +11,10 @@ import javafx.stage.Stage;
 
 import java.awt.*;
 import java.io.*;
-import java.math.BigInteger;
-import java.text.DecimalFormat;
-import java.text.Format;
+import java.util.Scanner;
 import java.util.regex.Pattern;
+
+import static sample.Main.primaryStage;
 
 
 public class Controller {
@@ -71,8 +71,17 @@ public class Controller {
     }
 
     public void saveChanges() {
+        File dataFile = null;
         try {
             File chosenLocation = new File(nameField.getText());
+
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("Save As");
+            fileChooser.getExtensionFilters().addAll(
+                    new FileChooser.ExtensionFilter("SRT file (*.srt)", ".srt")
+            );
+
+
             String line = null;
             Main.subtitlesEdited = new File("sample.tempSubtitles.srt");
             bufferedReader = new BufferedReader(new InputStreamReader(
@@ -86,6 +95,18 @@ public class Controller {
             while ((line = bufferedReader.readLine()) != null) {
                 bufferedWriter.write(line + "\n");
             }
+
+            //needs a fix
+            File userRelated = fileChooser.showSaveDialog(Main.primaryStage);
+
+            if (userRelated != null) {
+                try (Scanner scanner = new Scanner(userRelated)) {
+                    String content = scanner.useDelimiter("\\Z").next();
+                    dataFile = userRelated;
+                    saveChangesButton.setDisable(false);
+                }
+            }
+
 
         } catch (UnsupportedEncodingException e) {
             MessageBox.display("Your system does not support Windows-1251 encoding");
@@ -100,6 +121,7 @@ public class Controller {
                 bufferedReader.close();
                 bufferedWriter.flush();
                 bufferedWriter.close();
+
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -109,17 +131,11 @@ public class Controller {
     public void removeTags() {
         try {
             Main.subtitlesEdited = new File("sample.tempSubtitles.srt");
-            if (Main.subtitlesEdited.exists()) {
-                bufferedReader = new BufferedReader(new InputStreamReader(
-                        new FileInputStream(Main.subtitlesEdited), "Windows-1251"));
-                bufferedWriter = new BufferedWriter(new OutputStreamWriter(
-                        new FileOutputStream(Main.subtitlesEdited), "Windows-1251"));
-            } else {
-                bufferedReader = new BufferedReader(new InputStreamReader(
-                        new FileInputStream(Main.subtitleFile), "Windows-1251"));
-                bufferedWriter = new BufferedWriter(new OutputStreamWriter(
-                        new FileOutputStream(Main.subtitlesEdited), "Windows-1251"));
-            }
+
+            bufferedReader = new BufferedReader(new InputStreamReader(
+                    new FileInputStream(Main.subtitleFile), "Windows-1251"));
+            bufferedWriter = new BufferedWriter(new OutputStreamWriter(
+                    new FileOutputStream(Main.subtitlesEdited), "Windows-1251"));
 
 
             String line = null;
@@ -128,19 +144,23 @@ public class Controller {
                 line = removeTags(line, tagRegex);
                 bufferedWriter.write(line + "\n");
             }
+
         } catch (NullPointerException | FileNotFoundException e) {
             MessageBox.display("Open Subtitles File First");
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
+
             try {
                 bufferedReader.close();
                 bufferedWriter.flush();
                 bufferedWriter.close();
+
             } catch (IOException e) {
                 e.printStackTrace();
             }
+
         }
     }
 
@@ -186,8 +206,25 @@ public class Controller {
                         }
                     }
 
-                    long startingTimeEdited = startingTimeMilliSec + timeInterval;
-                    long endingTimeEdited = endingTimeMilliSec + timeInterval;
+                    long startingTimeEdited;
+                    long endingTimeEdited;
+
+                    if (slowDownButton.selectedProperty().getValue()) {
+                        startingTimeEdited = startingTimeMilliSec - timeInterval;
+                        endingTimeEdited = endingTimeMilliSec - timeInterval;
+                        if (startingTimeEdited < 0) {
+                            startingTimeEdited = 0;
+                            if (endingTimeEdited < 0) {
+                                endingTimeEdited = 0;
+                            }
+                        }
+                    } else if (speedUpButton.selectedProperty().getValue()) {
+                        startingTimeEdited = startingTimeMilliSec + timeInterval;
+                        endingTimeEdited = endingTimeMilliSec + timeInterval;
+                    } else {
+                        startingTimeEdited = startingTimeMilliSec;
+                        endingTimeEdited = endingTimeMilliSec;
+                    }
 
                     long millisecondsOfStartingEditedTime = startingTimeEdited % 1000;
                     long secondsOfStartingEditedTime = (startingTimeEdited / 1000) % 60;
