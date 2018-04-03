@@ -11,7 +11,7 @@ import java.io.File;
 import java.util.regex.Pattern;
 
 public class Main extends Application {
-
+    public static Stage primaryStage;
     static File subtitleFile;
     static File subtitlesEdited;
 
@@ -30,6 +30,7 @@ public class Main extends Application {
     private void SetUpGUI(Stage primaryStage) throws java.io.IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("EditorGUI.fxml"));
         Controller controller = fxmlLoader.getController();
+
         fxmlLoader.setRoot(contentArea);
         primaryStage.setTitle("Subtitles Editor");
         primaryStage.setScene(new Scene(fxmlLoader.load(), 550, 350));
