@@ -14,12 +14,9 @@ import java.io.*;
 import java.util.Scanner;
 import java.util.regex.Pattern;
 
-import static sample.Main.primaryStage;
-
-
 public class Controller {
     @FXML
-    Button timeIntervalButton;
+    Button applyTimeChangesButton;
     @FXML
     Button loadFileButton, openFileWithButton, exitButton, saveChangesButton;
     @FXML
@@ -38,11 +35,15 @@ public class Controller {
         configureFileChooser(fileChooser, "Open Subtitle File");
         Main.subtitleFile = fileChooser.showOpenDialog(new Stage());
         SetTextField();
+        saveChangesButton.setDisable(false);
+        openFileWithButton.setDisable(false);
     }
 
     private void SetTextField() {
-        nameOfLoadedFile.setText(Main.subtitleFile.getName());
-        nameField.setText(Main.subtitleFile.getAbsolutePath());
+        if (Main.subtitleFile != null) {
+            nameOfLoadedFile.setText(Main.subtitleFile.getName());
+            nameField.setText(Main.subtitleFile.getAbsolutePath());
+        }
     }
 
     private void configureFileChooser(final FileChooser fileChooser, String message) {
@@ -71,60 +72,27 @@ public class Controller {
     }
 
     public void saveChanges() {
-        File dataFile = null;
+        File newEdited = new File(nameField.getText());
+        Main.subtitlesEdited = new File("sample.tempSubtitles.srt");
+
         try {
-            File chosenLocation = new File(nameField.getText());
-
-            FileChooser fileChooser = new FileChooser();
-            fileChooser.setTitle("Save As");
-            fileChooser.getExtensionFilters().addAll(
-                    new FileChooser.ExtensionFilter("SRT file (*.srt)", ".srt")
-            );
-
-
-            String line = null;
-            Main.subtitlesEdited = new File("sample.tempSubtitles.srt");
             bufferedReader = new BufferedReader(new InputStreamReader(
                     new FileInputStream(Main.subtitlesEdited), "Windows-1251"));
             bufferedWriter = new BufferedWriter(new OutputStreamWriter(
-                    new FileOutputStream(chosenLocation), "Windows-1251"));
-            bufferedReader = new BufferedReader(new InputStreamReader(
-                    new FileInputStream(Main.subtitlesEdited), "Windows-1251"));
-            bufferedWriter = new BufferedWriter(new OutputStreamWriter(
-                    new FileOutputStream(chosenLocation), "Windows-1251"));
+                    new FileOutputStream(newEdited), "Windows-1251"));
+            String line;
             while ((line = bufferedReader.readLine()) != null) {
                 bufferedWriter.write(line + "\n");
             }
-
-            //needs a fix
-            File userRelated = fileChooser.showSaveDialog(Main.primaryStage);
-
-            if (userRelated != null) {
-                try (Scanner scanner = new Scanner(userRelated)) {
-                    String content = scanner.useDelimiter("\\Z").next();
-                    dataFile = userRelated;
-                    saveChangesButton.setDisable(false);
-                }
-            }
-
-
-        } catch (UnsupportedEncodingException e) {
-            MessageBox.display("Your system does not support Windows-1251 encoding");
+            bufferedReader.close();
+            bufferedWriter.flush();
+            bufferedWriter.close();
+        } catch (FileNotFoundException e) {
             e.printStackTrace();
-        } catch (NullPointerException | FileNotFoundException e) {
-            MessageBox.display("File Not Found");
+        } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
-        } finally {
-            try {
-                bufferedReader.close();
-                bufferedWriter.flush();
-                bufferedWriter.close();
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
         }
     }
 
@@ -136,7 +104,6 @@ public class Controller {
                     new FileInputStream(Main.subtitleFile), "Windows-1251"));
             bufferedWriter = new BufferedWriter(new OutputStreamWriter(
                     new FileOutputStream(Main.subtitlesEdited), "Windows-1251"));
-
 
             String line = null;
             Pattern tagRegex = Pattern.compile("<[^>]*>");
@@ -151,7 +118,6 @@ public class Controller {
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-
             try {
                 bufferedReader.close();
                 bufferedWriter.flush();
@@ -160,7 +126,6 @@ public class Controller {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
         }
     }
 
