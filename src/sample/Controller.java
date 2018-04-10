@@ -11,7 +11,6 @@ import javafx.stage.Stage;
 
 import java.awt.*;
 import java.io.*;
-import java.util.Scanner;
 import java.util.regex.Pattern;
 
 public class Controller {
@@ -74,7 +73,6 @@ public class Controller {
     public void saveChanges() {
         File newEdited = new File(nameField.getText());
         Main.subtitlesEdited = new File("sample.tempSubtitles.srt");
-
         try {
             bufferedReader = new BufferedReader(new InputStreamReader(
                     new FileInputStream(Main.subtitlesEdited), "Windows-1251"));
@@ -99,33 +97,25 @@ public class Controller {
     public void removeTags() {
         try {
             Main.subtitlesEdited = new File("sample.tempSubtitles.srt");
-
             bufferedReader = new BufferedReader(new InputStreamReader(
                     new FileInputStream(Main.subtitleFile), "Windows-1251"));
             bufferedWriter = new BufferedWriter(new OutputStreamWriter(
                     new FileOutputStream(Main.subtitlesEdited), "Windows-1251"));
 
-            String line = null;
+            String line;
             Pattern tagRegex = Pattern.compile("<[^>]*>");
             while ((line = bufferedReader.readLine()) != null) {
                 line = removeTags(line, tagRegex);
                 bufferedWriter.write(line + "\n");
             }
-
+            bufferedReader.close();
+            bufferedWriter.flush();
+            bufferedWriter.close();
         } catch (NullPointerException | FileNotFoundException e) {
             MessageBox.display("Open Subtitles File First");
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
-        } finally {
-            try {
-                bufferedReader.close();
-                bufferedWriter.flush();
-                bufferedWriter.close();
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
         }
     }
 
@@ -134,8 +124,6 @@ public class Controller {
     }
 
     public void changeTimeIntervals() {
-        String line = null;
-
         try {
             int timeInterval = Integer.parseInt(milliSecondsField.getText());
             Main.subtitlesEdited = new File("sample.tempSubtitles.srt");
@@ -143,8 +131,8 @@ public class Controller {
                     new FileInputStream(Main.subtitleFile), "Windows-1251"));
             bufferedWriter = new BufferedWriter(new OutputStreamWriter(
                     new FileOutputStream(Main.subtitlesEdited), "Windows-1251"));
-            line = bufferedReader.readLine();
-            while (line != null) {
+            String line;
+            while ((line = bufferedReader.readLine()) != null) {
                 if (line.contains("-->")) {
                     String[] timeIntervals = line.split(" --> ");
                     String[] startingTimes = timeIntervals[0].split(":");
@@ -173,7 +161,6 @@ public class Controller {
 
                     long startingTimeEdited;
                     long endingTimeEdited;
-
                     if (slowDownButton.selectedProperty().getValue()) {
                         startingTimeEdited = startingTimeMilliSec - timeInterval;
                         endingTimeEdited = endingTimeMilliSec - timeInterval;
@@ -209,8 +196,10 @@ public class Controller {
                 } else {
                     bufferedWriter.write(line + "\n");
                 }
-                line = bufferedReader.readLine();
             }
+            bufferedReader.close();
+            bufferedWriter.flush();
+            bufferedWriter.close();
         } catch (NumberFormatException e) {
             MessageBox.display("Change the milliseconds");
             e.printStackTrace();
@@ -222,13 +211,6 @@ public class Controller {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
-        } finally {
-            try {
-                bufferedReader.close();
-                bufferedWriter.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
         }
     }
 
