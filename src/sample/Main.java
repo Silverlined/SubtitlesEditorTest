@@ -11,7 +11,6 @@ import java.io.File;
 import java.util.regex.Pattern;
 
 public class Main extends Application {
-    public static Stage primaryStage;
     static File subtitleFile;
     static File subtitlesEdited;
 

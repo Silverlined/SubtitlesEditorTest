@@ -11,15 +11,11 @@ import javafx.stage.Stage;
 
 import java.awt.*;
 import java.io.*;
-import java.util.Scanner;
-import java.util.regex.Pattern;
 
-import static sample.Main.primaryStage;
+import java.util.regex.Pattern;
 
 
 public class Controller {
-    @FXML
-    Button timeIntervalButton;
     @FXML
     Button loadFileButton, openFileWithButton, exitButton, saveChangesButton;
     @FXML
@@ -38,6 +34,7 @@ public class Controller {
         configureFileChooser(fileChooser, "Open Subtitle File");
         Main.subtitleFile = fileChooser.showOpenDialog(new Stage());
         SetTextField();
+        saveChangesButton.setDisable(false);
     }
 
     private void SetTextField() {
@@ -70,19 +67,37 @@ public class Controller {
         System.exit(0);
     }
 
+    public void saveAsClick() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Save As");
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter(".SRT files", "*.srt")
+        );
+        File dataFile = fileChooser.showSaveDialog(new Stage());
+        if (dataFile != null) {
+            try (PrintStream printStream = new PrintStream(dataFile)) {
+
+                dataFile = Main.subtitlesEdited;
+
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+
+    }
+
     public void saveChanges() {
-        File dataFile = null;
+        String line = null;
         try {
             File chosenLocation = new File(nameField.getText());
 
-            FileChooser fileChooser = new FileChooser();
-            fileChooser.setTitle("Save As");
-            fileChooser.getExtensionFilters().addAll(
-                    new FileChooser.ExtensionFilter("SRT file (*.srt)", ".srt")
-            );
+            saveChangesButton.setOnAction(event -> {
+                removeTags();
+                changeTimeIntervals();
 
+                saveAsClick();
 
-            String line = null;
+            });
             Main.subtitlesEdited = new File("sample.tempSubtitles.srt");
             bufferedReader = new BufferedReader(new InputStreamReader(
                     new FileInputStream(Main.subtitlesEdited), "Windows-1251"));
@@ -94,17 +109,6 @@ public class Controller {
                     new FileOutputStream(chosenLocation), "Windows-1251"));
             while ((line = bufferedReader.readLine()) != null) {
                 bufferedWriter.write(line + "\n");
-            }
-
-            //needs a fix
-            File userRelated = fileChooser.showSaveDialog(Main.primaryStage);
-
-            if (userRelated != null) {
-                try (Scanner scanner = new Scanner(userRelated)) {
-                    String content = scanner.useDelimiter("\\Z").next();
-                    dataFile = userRelated;
-                    saveChangesButton.setDisable(false);
-                }
             }
 
 
@@ -129,22 +133,24 @@ public class Controller {
     }
 
     public void removeTags() {
+
         try {
-            Main.subtitlesEdited = new File("sample.tempSubtitles.srt");
+            if (removeTagsBox.isSelected()) {
+                Main.subtitlesEdited = new File("sample.tempSubtitles.srt");
 
-            bufferedReader = new BufferedReader(new InputStreamReader(
-                    new FileInputStream(Main.subtitleFile), "Windows-1251"));
-            bufferedWriter = new BufferedWriter(new OutputStreamWriter(
-                    new FileOutputStream(Main.subtitlesEdited), "Windows-1251"));
+                bufferedReader = new BufferedReader(new InputStreamReader(
+                        new FileInputStream(Main.subtitleFile), "Windows-1251"));
+                bufferedWriter = new BufferedWriter(new OutputStreamWriter(
+                        new FileOutputStream(Main.subtitlesEdited), "Windows-1251"));
 
 
-            String line = null;
-            Pattern tagRegex = Pattern.compile("<[^>]*>");
-            while ((line = bufferedReader.readLine()) != null) {
-                line = removeTags(line, tagRegex);
-                bufferedWriter.write(line + "\n");
+                String line = null;
+                Pattern tagRegex = Pattern.compile("<[^>]*>");
+                while ((line = bufferedReader.readLine()) != null) {
+                    line = removeTags(line, tagRegex);
+                    bufferedWriter.write(line + "\n");
+                }
             }
-
         } catch (NullPointerException | FileNotFoundException e) {
             MessageBox.display("Open Subtitles File First");
             e.printStackTrace();
