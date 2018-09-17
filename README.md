@@ -3,6 +3,10 @@
 имейл: dimitriiiy@abv.bg martin.cenov@gmail.com		
 GitHub: https://github.com/Silverlined/SubtitlesEditor
 
+Subtitles editor
+
+The application should be able to: ● Load .srt and .sub files ● Be able to choose how to change the subtitles ○ To hurry with X milliseconds ○ Delay with X milliseconds ○ Remove the markers in subtitle text; ● The selected changes can be applied to the file and it is saved with a name selected by the user, the box name is pre-filled with the old path. ● Has the option to be opened with a default os application ● The assingment must have a visual interface.
+
 Редактор на субтитри
 
 1. Условие
